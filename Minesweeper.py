@@ -18,6 +18,7 @@ DARK_GRAY = (100, 100, 100)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 NUM_MINES = 40
+SURROUNDING_COLORS = {1:(0, 0, 255), 2:(0, 255, 0), 3:(255, 0, 0), 4:(0, 0, 128), 5:(128, 0, 0), 6:(64, 224, 208), 7:(0, 0, 0), 8:(192, 192, 192)}
 
 # Initialize screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -26,6 +27,8 @@ pygame.display.set_caption("Minesweeper")
 #Initialize game objects
 mineClicked = False
 font = pygame.font.Font(None, 36)
+flagImg = pygame.image.load("assets/flag.png")
+mineImg = pygame.image.load("assets/mine.png")
 cells = {}
 
 for y in range(GRID_HEIGHT):
@@ -50,7 +53,6 @@ def revealSurroundings(cell):
             for h in range(cell.pos[1] - 1, cell.pos[1] + 2):
                 for w in range(cell.pos[0] - 1, cell.pos[0] + 2):
                     neighbor = cells.get((w, h))
-                    print("gets here")
                     if neighbor and not neighbor.displayNum:
                         revealSurroundings(neighbor)
  
@@ -68,6 +70,7 @@ while True:
                     if event.button == 1:
                         if cell.isMine:
                             print("mine clicked")
+                            cell.firstMine = True
                             mineClicked = True
                         elif not cell.isFlagged:
                             print(cell.surroundingMines)
@@ -87,14 +90,17 @@ while True:
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
             cell = cells[(x, y)]
-            
-            if mineClicked and cell.isMine:
-                cell.surface.fill(BLACK)
-                screen.blit(cell.surface, cell.rect)
 
             if cell.isFlagged:
-                cell.surface.fill(RED)
-                screen.blit(cell.surface, cell.rect)
+                #cell.surface.fill(RED)
+                screen.blit(flagImg, cell.rect)
+             
+            if mineClicked and cell.isMine:
+                #cell.surface.fill(BLACK)
+                if cell.firstMine:
+                    cell.surface.fill(RED)
+                    screen.blit(cell.surface, cell.rect)
+                screen.blit(mineImg, cell.rect)
                 
             else:
                 pygame.draw.rect(screen, GRAY, cell.rect, 1)
@@ -102,7 +108,7 @@ while True:
                     cell.surface.fill(DARK_GRAY)
                     screen.blit(cell.surface, cell.rect)
                     if cell.surroundingMines > 0:
-                        num_surface = font.render(str(cell.surroundingMines), True, WHITE)
+                        num_surface = font.render(str(cell.surroundingMines), True, SURROUNDING_COLORS[cell.surroundingMines])
                         screen.blit(cell.surface, cell.rect)
                         screen.blit(num_surface, cell.rect)
                     

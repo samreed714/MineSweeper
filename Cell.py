@@ -11,3 +11,4 @@ class Cell:
         self.surface: Surface = pygame.Surface((width - 1, height - 1))
         self.displayNum: bool = False
         self.pos = (x // width, y // height)
+        self.firstMine = False
